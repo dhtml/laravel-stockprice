@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::match(['post'], '/add/stock', [StockController::class, 'addItem'])->name('add-stock-item');
+Route::match(['get'], '/all/stocks', [StockController::class, 'fetchAll'])->name('fetch-stock-items');
