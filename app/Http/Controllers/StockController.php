@@ -9,25 +9,65 @@ use Carbon\Carbon;
 
 class StockController extends Controller
 {
+
+    /**
+    * Add single stock item
+    *
+    * @param Request $request   The request object
+    */
     public function addItem(Request $request)
     {
-        if ($request->isMethod('post')) {
-            $form_data = $request->only('name', 'quantity', 'price');
-            $form_data['time'] = time();
-            $form_data['total'] = $request->quantity * $request->price;
+        $form_data = $request->only('name', 'quantity', 'price');
+        $form_data['time'] = time();
+        $form_data['total'] = $request->quantity * $request->price;
 
-            $fileName = $form_data['time']. '_stock.json';
-            File::put(public_path('/stocks/'.$fileName), json_encode($form_data));
+        $fileName = $form_data['time']. '_stock.json';
+        File::put(public_path('/stocks/'.$fileName), json_encode($form_data));
 
-            $this->validate($request, [
-            'name' => 'required',
-            'quantity' => 'required',
-            'price' => 'required',
-            ]);
-
-            return response()->json([
+        return response()->json([
               'success' => true,
             ]);
+    }
+
+
+    /**
+    * Edit single stock item
+    *
+    * @param Request $request   The request object
+    */
+    public function editItem(Request $request)
+    {
+        $form_data = $request->only('name', 'quantity', 'price');
+        $form_data['total'] = $request->quantity * $request->price;
+
+        $fileName = $request->path;
+        File::put(public_path('/stocks/'.$fileName), json_encode($form_data));
+
+        return response()->json([
+              'success' => true,
+            ]);
+    }
+
+    /**
+    * Get single stock item
+    *
+    * @param Request $request   The request object
+    */
+    public function getStock(Request $request)
+    {
+        $file = public_path('/stocks/').$request->path;
+
+        if (file_exists($file)) {
+            $data = json_decode(file_get_contents($file));
+            $data->path = $request->path;
+            return response()->json([
+          'success' => true,
+          'data'=>$data,
+        ]);
+        } else {
+            return response()->json([
+          'success' => false,
+        ], 404);
         }
     }
 
@@ -56,31 +96,5 @@ class StockController extends Controller
         }
 
         return response()->json($stockList);
-    }
-
-    public function editTask(Request $request)
-    {
-        $task_id = $request->id;
-        $task = Task::findOrFail($task_id);
-        $project = $task->project;
-        if ($request->isMethod('post')) {
-            if ($task->name!=$request->name) {
-                //only validate if a different name is being sent
-                $this->validate($request, [
-                'name' => 'required|max:100|unique:projects',
-                'priority' => 'required|int',
-                'datetime' => 'required|max:100',
-              ]);
-            }
-            if ($request->action=="delete") {
-                Task::where('id', $task->id)->delete();
-                flash('Your task was deleted successfully')->info()->important();
-                return redirect()->route('view-project', ['id'=>$project->id]);
-            }
-            Task::where('id', $task->id)->update(['name'=>$request->input('name'),'priority'=>$request->input('priority'),'datetime'=>$request->input('datetime')]);
-            flash('Your task was updated successfully')->info()->important();
-            return back();
-        }
-        return view('task.edit', ['task'=>$task]);
     }
 }
