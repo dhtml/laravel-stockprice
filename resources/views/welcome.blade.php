@@ -82,6 +82,7 @@
           <form role="form" id="editStockForm">
               @csrf
               <input type="hidden" id="path" name="path">
+              <input type="hidden" id="time" name="time">
               <!-- Modal Header -->
               <div class="modal-header">
               <h4 class="modal-title" id="stockModalLabel">
@@ -204,6 +205,7 @@
                 dataType: 'json',
                 success: function(response) {
                   $('#editStockForm').find('#path').val(response.data.path);
+                  $('#editStockForm').find('#time').val(response.data.time);
                   $('#editStockForm').find('#name').val(response.data.name);
                   $('#editStockForm').find('#quantity').val(response.data.quantity);
                   $('#editStockForm').find('#price').val(response.data.price);

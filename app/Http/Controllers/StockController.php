@@ -37,7 +37,7 @@ class StockController extends Controller
     */
     public function editItem(Request $request)
     {
-        $form_data = $request->only('name', 'quantity', 'price');
+        $form_data = $request->only('name', 'quantity','time','price');
         $form_data['total'] = $request->quantity * $request->price;
 
         $fileName = $request->path;
@@ -79,9 +79,6 @@ class StockController extends Controller
         $stockList = ['rows'=>[],"total"=>0];
 
         $files = glob(public_path('/stocks/').'*.json');
-        usort($files, function ($a, $b) {
-            return filemtime($a) - filemtime($b);
-        });
 
         $pos = 1;
         foreach ($files as $file) {
@@ -94,6 +91,11 @@ class StockController extends Controller
             $stockList['total'] += $stockItem->total;
             $pos++;
         }
+
+        usort($stockList['rows'], function ($a, $b) {
+            return $a->time - $a->time;
+        });
+
 
         return response()->json($stockList);
     }
