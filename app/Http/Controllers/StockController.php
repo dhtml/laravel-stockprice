@@ -37,15 +37,54 @@ class StockController extends Controller
     */
     public function editItem(Request $request)
     {
-        $form_data = $request->only('name', 'quantity','time','price');
+        $form_data = $request->only('name', 'quantity', 'time', 'price');
         $form_data['total'] = $request->quantity * $request->price;
 
-        $fileName = $request->path;
-        File::put(public_path('/stocks/'.$fileName), json_encode($form_data));
+        $file_name = $request->path;
+        $file_path = public_path('/stocks/'.$file_name);
+
+        File::put($file_path, json_encode($form_data));
 
         return response()->json([
               'success' => true,
             ]);
+    }
+
+    /**
+    * Delete single stock item
+    *
+    * @param Request $request   The request object
+    */
+    public function deleteStock(Request $request)
+    {
+        $file_name = $request->path;
+        $file_path = public_path('/stocks/'.$file_name);
+
+        if (File::exists($file_path)) {
+            File::delete($file_path);
+        }
+
+        return response()->json([
+            'success' => true,
+          ]);
+    }
+
+    /**
+    * Delete entire stock items
+    *
+    * @param Request $request   The request object
+    */
+    public function deleteAllStock(Request $request)
+    {
+        $files = glob(public_path('/stocks/').'*.json');
+
+        foreach ($files as $file) {
+            File::delete($file);
+        }
+        
+        return response()->json([
+            'success' => true,
+          ]);
     }
 
     /**
@@ -92,6 +131,7 @@ class StockController extends Controller
             $pos++;
         }
 
+        //sort so that most recent file is at the bottom of the list
         usort($stockList['rows'], function ($a, $b) {
             return $a->time - $a->time;
         });

@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Stock Manager</title>
     <script>
     var base_url = "{{ url('') }}";
@@ -156,7 +155,7 @@
             var rows = data.rows;
 
             for (var key in rows) {
-                $('#stockList>tbody').append('<tr align="center" scope="row"><td>' + rows[key].pos + '</td><td>' + rows[key].name +  '</td><td>' + rows[key].quantity +  '</td><td>' + rows[key].price +  '</td><td>' + rows[key].datetime +  '</td><td>' + rows[key].total +  '</td><td><button data-path="' + rows[key].path + '" class="btn btn-info editStock">Edit</button> &nbsp;&nbsp; <button data-path="' + rows[key].path + '" class="btn btn-danger deleteStock">Delete</button> </td></tr>');
+                $('#stockList>tbody').append('<tr align="center" scope="row"><td>' + rows[key].pos + '</td><td>' + rows[key].name +  '</td><td>' + rows[key].quantity +  '</td><td>' + rows[key].price +  '</td><td>' + rows[key].datetime +  '</td><td>' + rows[key].total +  '</td><td><button data-path="' + rows[key].path + '" class="btn btn-info editStock">Edit</button> &nbsp;&nbsp; <button data-name="' + rows[key].name + '" data-path="' + rows[key].path + '" class="btn btn-danger deleteStock">Delete</button> </td></tr>');
             }
 
             $('#total_stock').html(data.total);
@@ -196,7 +195,7 @@
             return false;
           });
 
-          //bind buttons
+          //bind edit button
           $('#stockList').on('click', '.editStock', function(){
             var url=base_url+"/stock/"+$(this).data('path');
             $.ajax({
@@ -218,7 +217,48 @@
             });
           });
 
+          //bind delete button
+          $('#stockList').on('click', '.deleteStock', function(){
+            if(!confirm("Are you sure you want to delete '"+$(this).data('name')+"' ?")) {
+              return false;
+            }
+            var url=base_url+"/stock/"+$(this).data('path');
+            $.ajax({
+                url: url,
+                method:'delete',
+                cache: false,
+                dataType: 'json',
+                data: {
+                  "_token": "{{ csrf_token() }}",
+                },
+                complete: function() {
+                  fetchAllData();
+                }
+            });
+          });
 
+          //bind empty button
+          $('#stockList').on('click', '#emptyStock', function(){
+            if(!confirm("Are you sure you want to empty the entire stock list ?")) {
+              return false;
+            }
+            var url=base_url+"/stock/delete/all";
+            $.ajax({
+                url: url,
+                method:'delete',
+                cache: false,
+                dataType: 'json',
+                data: {
+                  "_token": "{{ csrf_token() }}",
+                },
+                complete: function() {
+                  fetchAllData();
+                }
+            });
+          });
+
+
+          //load stock data
           fetchAllData();
         });
       </script>

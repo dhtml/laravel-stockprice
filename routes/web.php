@@ -23,3 +23,5 @@ Route::match(['put'], '/edit/stock', [StockController::class, 'editItem'])->name
 
 Route::match(['get'], '/all/stocks', [StockController::class, 'fetchAll'])->name('fetch-stock-items');
 Route::match(['get'], '/stock/{path}', [StockController::class, 'getStock'])->name('get-stock-item');
+Route::match(['delete'], '/stock/{path}', [StockController::class, 'deleteStock'])->name('delete-stock-item');
+Route::match(['delete'], '/stock/delete/all', [StockController::class, 'deleteAllStock'])->name('delete-all-stock-items');
